@@ -1,17 +1,27 @@
-# lab06 – Solver with CPack
+# Laboratory work #6
 
 [![CI](https://github.com/${GITHUB_USERNAME}/lab06/actions/workflows/ci.yml/badge.svg)](https://github.com/${GITHUB_USERNAME}/lab06/actions/workflows/ci.yml)
 
-Quadratic equation solver packaged with CPack (DEB, RPM, TGZ, ZIP).  
-GitHub Actions creates a release on every tag \`v*\` and uploads the packages.
+## Цель
+Настроить CPack для генерации пакетов (DEB, RPM, TGZ, ZIP) и GitHub Actions для автоматического релиза по тегу.
 
-## Usage
-\`\`\`
-./solver
-Enter a, b, c: 1 -3 2
-x1 = 2.000000
-x2 = 1.000000
-\`\`\`
+## Выполненные шаги
+- Создан репозиторий lab06, скопированы необходимые библиотеки.
+- Написан CMakeLists.txt с установкой solver и настройкой версии.
+- Настроен CPackConfig.cmake – добавлены контакты, имена пакетов, генераторы.
+- Организован GitHub Actions workflow (ci.yml):
+  - триггер на пуш тегов v*
+  - установка rpm
+  - конфигурация, сборка, вызов cpack
+  - создание релиза через softprops/action-gh-release
+- Исправлены ошибки:
+  - добавлена зависимость formatter_ex_lib -> formatter_lib
+  - указан maintainer для DEB-пакета
+- Созданы теги v1.0.0 ... v1.0.5, последний прошёл успешно.
 
-## Download
-See [Releases](https://github.com/${GITHUB_USERNAME}/lab06/releases)
+## Результаты
+- Релиз v1.0.5: https://github.com/dmitriysd9202/lab06/releases/tag/v1.0.5
+- К релизу приложены 4 пакета (deb, rpm, tar.gz, zip).
+
+## Вывод
+Лабораторная работа №6 выполнена полностью. CPack и GitHub Actions настроены корректно.
