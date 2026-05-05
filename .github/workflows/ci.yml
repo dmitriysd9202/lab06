@@ -1,40 +1,50 @@
-name: CI
+name: Build and Release
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Install lcov
-      run: sudo apt update && sudo apt install -y lcov
+      - name: Install RPM build tools
+        run: sudo apt-get update && sudo apt-get install -y rpm
 
-    - name: Configure with coverage
-      run: cmake -H. -B_build -DBUILD_TESTS=ON -DCMAKE_CXX_FLAGS="--coverage -O0" -DCMAKE_EXE_LINKER_FLAGS="--coverage"
+      - name: Configure CMake
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          cmake -B build -D SOLVER_VERSION="${VERSION}"
 
-    - name: Build
-      run: cmake --build _build --parallel 2
+      - name: Build
+        run: cmake --build build --config Release
 
-    - name: Run tests
-      run: cd _build && ctest --verbose
+      - name: Create binary packages (DEB, RPM)
+        run: cmake --build build --target package
 
-    - name: Collect coverage
-      run: |
-        lcov --capture --directory . --output-file coverage.info --ignore-errors gcov,source,mismatch
-        lcov --remove coverage.info '/usr/*' '*/third-party/*' '*/tests/*' --output-file coverage.info --ignore-errors unused
-        lcov --list coverage.info
+      - name: Create source packages (TGZ, ZIP)
+        run: cmake --build build --target package_source
 
-    - name: Upload to Coveralls
-      uses: coverallsapp/github-action@v2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        file: coverage.info
-        format: lcov
+      - name: List generated packages
+        run: ls -la build/*.{deb,rpm,tar.gz,zip} 2>/dev/null || true
+
+      - name: Create GitHub Release and upload assets
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          artifacts: "build/*.deb,build/*.rpm,build/*.tar.gz,build/*.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Automated release for version ${{ github.ref_name }}.
+            Contains binary packages (DEB, RPM) and source archives (TGZ, ZIP).
+          draft: false
+          prerelease: false

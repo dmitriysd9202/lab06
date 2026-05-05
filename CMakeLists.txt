@@ -1,20 +1,31 @@
 cmake_minimum_required(VERSION 3.10)
-project(lab05 VERSION 0.1.0)
+project(solver)
 
-option(BUILD_TESTS "Build tests" OFF)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(banking)
 
-if(BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(third-party/gtest)
-
-    target_compile_options(gtest PRIVATE -Wno-error)
-    target_compile_options(gtest_main PRIVATE -Wno-error)
-    target_compile_options(gmock PRIVATE -Wno-error)
-    target_compile_options(gmock_main PRIVATE -Wno-error)
-
-    add_executable(check tests/test_account.cpp tests/test_transaction.cpp)
-    target_link_libraries(check banking gmock_main)
-    add_test(NAME check COMMAND check)
+if(NOT DEFINED SOLVER_VERSION)
+    set(SOLVER_VERSION "0.1.0.0")
 endif()
+
+add_library(solver_lib STATIC solver_lib/solver.cpp)
+add_library(formatter_lib STATIC formatter_lib/formatter.cpp)
+add_library(formatter_ex_lib STATIC formatter_ex_lib/formatter_ex.cpp)
+
+add_executable(solver solver_application/equation.cpp)
+
+target_include_directories(solver PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/formatter_lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/formatter_ex_lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/solver_lib
+)
+target_include_directories(formatter_ex_lib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/formatter_lib)
+
+target_link_libraries(solver formatter_ex_lib solver_lib)
+
+install(TARGETS solver
+    RUNTIME DESTINATION bin
+)
+
+include(CPackConfig.cmake)
