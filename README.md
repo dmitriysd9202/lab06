@@ -1,6 +1,6 @@
 # Laboratory work #6
 
-[![CI](https://github.com/${GITHUB_USERNAME}/lab06/actions/workflows/ci.yml/badge.svg)](https://github.com/${GITHUB_USERNAME}/lab06/actions/workflows/ci.yml)
+[![CI](https://github.com/dmitriysd9202/lab06/actions/workflows/ci.yml/badge.svg)](https://github.com/dmitriysd9202/lab06/actions/workflows/ci.yml)
 
 ## Цель
 Настроить CPack для генерации пакетов (DEB, RPM, TGZ, ZIP) и GitHub Actions для автоматического релиза по тегу.
