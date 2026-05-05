@@ -12,7 +12,7 @@ add_library(solver_lib STATIC solver_lib/solver.cpp)
 add_library(formatter_lib STATIC formatter_lib/formatter.cpp)
 add_library(formatter_ex_lib STATIC formatter_ex_lib/formatter_ex.cpp)
 
-# Указываем, что formatter_ex_lib зависит от formatter_lib
+
 target_link_libraries(formatter_ex_lib formatter_lib)
 
 add_executable(solver solver_application/equation.cpp)
